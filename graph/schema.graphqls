@@ -38,3 +38,7 @@ type Query{
 
     getBooks: [Book!]!
 }
+
+type Mutation{
+    createUser(input: NewUser): User!
+}

@@ -8,8 +8,22 @@ import (
 	"errors"
 
 	_generated "github.com/justjundana/go-graphql/graph/generated"
+	_model "github.com/justjundana/go-graphql/graph/model"
 	_models "github.com/justjundana/go-graphql/models"
+
+	bcrypt "golang.org/x/crypto/bcrypt"
 )
+
+func (r *mutationResolver) CreateUser(ctx context.Context, input *_model.NewUser) (*_models.User, error) {
+	user := _models.User{}
+	user.Name = input.Name
+	user.Email = input.Email
+	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.MinCost)
+	user.Password = string(passwordHash)
+
+	createUser, err := r.userRepository.CreateUser(user)
+	return &createUser, err
+}
 
 func (r *queryResolver) GetUsers(ctx context.Context) ([]*_models.User, error) {
 	responseData, err := r.userRepository.GetUsers()
@@ -50,7 +64,11 @@ func (r *queryResolver) GetBooks(ctx context.Context) ([]*_models.Book, error) {
 	return bookData, nil
 }
 
+// Mutation returns _generated.MutationResolver implementation.
+func (r *Resolver) Mutation() _generated.MutationResolver { return &mutationResolver{r} }
+
 // Query returns _generated.QueryResolver implementation.
 func (r *Resolver) Query() _generated.QueryResolver { return &queryResolver{r} }
 
+type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

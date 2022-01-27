@@ -70,3 +70,21 @@ func (ur *UserRepository) CreateUser(user _models.User) (_models.User, error) {
 
 	return user, nil
 }
+
+func (ur *UserRepository) UpdateUser(user _models.User) (_models.User, error) {
+	query := `UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?`
+
+	statement, err := ur.db.Prepare(query)
+	if err != nil {
+		return user, err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(user.Name, user.Email, user.Password, user.ID)
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}

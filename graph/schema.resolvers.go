@@ -10,8 +10,7 @@ import (
 	_generated "github.com/justjundana/go-graphql/graph/generated"
 	_model "github.com/justjundana/go-graphql/graph/model"
 	_models "github.com/justjundana/go-graphql/models"
-
-	bcrypt "golang.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input *_model.NewUser) (*_models.User, error) {
@@ -38,6 +37,16 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id *int, input *_mode
 
 	updateUser, err := r.userRepository.UpdateUser(user)
 	return &updateUser, err
+}
+
+func (r *mutationResolver) DeleteUser(ctx context.Context, id *int) (*_models.User, error) {
+	user, err := r.userRepository.GetUser(*id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	deleteUser, err := r.userRepository.DeleteUser(user)
+	return &deleteUser, err
 }
 
 func (r *queryResolver) GetUsers(ctx context.Context) ([]*_models.User, error) {

@@ -9,4 +9,5 @@ type UserInterface interface {
 	GetUser(id int) (_models.User, error)
 	CreateUser(user _models.User) (_models.User, error)
 	UpdateUser(user _models.User) (_models.User, error)
+	DeleteUser(user _models.User) (_models.User, error)
 }

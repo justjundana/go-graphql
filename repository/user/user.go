@@ -88,3 +88,21 @@ func (ur *UserRepository) UpdateUser(user _models.User) (_models.User, error) {
 
 	return user, nil
 }
+
+func (ur *UserRepository) DeleteUser(user _models.User) (_models.User, error) {
+	query := `DELETE FROM users WHERE id = ?`
+
+	statement, err := ur.db.Prepare(query)
+	if err != nil {
+		return user, err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(user.ID)
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}

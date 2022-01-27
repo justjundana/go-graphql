@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 
 	_playground "github.com/99designs/gqlgen/graphql/playground"
 	_config "github.com/justjundana/go-graphql/config"
@@ -15,14 +14,7 @@ import (
 	handler "github.com/99designs/gqlgen/graphql/handler"
 )
 
-const defaultPort = "8080"
-
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
-	}
-
 	db := _config.FetchConnection()
 
 	userRepo := _userRepository.New(db)
@@ -34,6 +26,6 @@ func main() {
 	http.Handle("/", _playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Printf("connect to http://localhost:%s/ for GraphQL playground", "8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

@@ -25,6 +25,21 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input *_model.NewUser
 	return &createUser, err
 }
 
+func (r *mutationResolver) UpdateUser(ctx context.Context, id *int, input *_model.NewUser) (*_models.User, error) {
+	user, err := r.userRepository.GetUser(*id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	user.Name = input.Name
+	user.Email = input.Email
+	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.MinCost)
+	user.Password = string(passwordHash)
+
+	updateUser, err := r.userRepository.UpdateUser(user)
+	return &updateUser, err
+}
+
 func (r *queryResolver) GetUsers(ctx context.Context) ([]*_models.User, error) {
 	responseData, err := r.userRepository.GetUsers()
 	if err != nil {

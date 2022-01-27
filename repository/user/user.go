@@ -52,3 +52,21 @@ func (ur *UserRepository) GetUser(id int) (_models.User, error) {
 
 	return user, nil
 }
+
+func (ur *UserRepository) CreateUser(user _models.User) (_models.User, error) {
+	query := `INSERT INTO users (name, email, password) VALUES (?, ?, ?)`
+
+	statement, err := ur.db.Prepare(query)
+	if err != nil {
+		return user, err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(user.Name, user.Email, user.Password)
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}

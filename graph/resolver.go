@@ -10,11 +10,11 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	userRepository _userRepository.UserRepository
-	bookRepository _bookRepository.BookRepository
+	userRepository _userRepository.UserInterface
+	bookRepository _bookRepository.BookInterface
 }
 
-func NewResolver(ur _userRepository.UserRepository, br _bookRepository.BookRepository) *Resolver {
+func NewResolver(ur _userRepository.UserInterface, br _bookRepository.BookInterface) *Resolver {
 	return &Resolver{
 		userRepository: ur,
 		bookRepository: br,

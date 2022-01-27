@@ -20,7 +20,7 @@ func main() {
 	userRepo := _userRepository.New(db)
 	bookRepo := _bookRepository.New(db)
 
-	client := _graph.NewResolver(*userRepo, *bookRepo)
+	client := _graph.NewResolver(userRepo, bookRepo)
 	srv := handler.NewDefaultServer(_generated.NewExecutableSchema(_generated.Config{Resolvers: client}))
 
 	http.Handle("/", _playground.Handler("GraphQL playground", "/query"))

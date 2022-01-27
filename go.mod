@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.16.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/vektah/gqlparser/v2 v2.2.0
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 )
 
 require (

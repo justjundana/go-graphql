@@ -39,3 +39,16 @@ func (ur *UserRepository) GetUsers() ([]_models.User, error) {
 
 	return users, nil
 }
+
+func (ur *UserRepository) GetUser(id int) (_models.User, error) {
+	var user _models.User
+
+	row := ur.db.QueryRow(`SELECT id, name, email FROM users WHERE id = ?`, id)
+
+	err := row.Scan(&user.ID, &user.Name, &user.Email)
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}

@@ -54,6 +54,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		GetBooks func(childComplexity int) int
+		GetUser  func(childComplexity int, id *int) int
 		GetUsers func(childComplexity int) int
 	}
 
@@ -67,6 +68,7 @@ type ComplexityRoot struct {
 
 type QueryResolver interface {
 	GetUsers(ctx context.Context) ([]*models.User, error)
+	GetUser(ctx context.Context, id *int) (*models.User, error)
 	GetBooks(ctx context.Context) ([]*models.Book, error)
 }
 
@@ -133,6 +135,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetBooks(childComplexity), true
+
+	case "Query.getUser":
+		if e.complexity.Query.GetUser == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetUser(childComplexity, args["id"].(*int)), true
 
 	case "Query.getUsers":
 		if e.complexity.Query.GetUsers == nil {
@@ -255,6 +269,8 @@ input NewBook{
 
 type Query{
     getUsers: [User!]!
+    getUser(id: Int = ""): User!
+
     getBooks: [Book!]!
 }
 `, BuiltIn: false},
@@ -277,6 +293,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -560,7 +591,49 @@ func (ec *executionContext) _Query_getUsers(ctx context.Context, field graphql.C
 	}
 	res := resTmp.([]*models.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋjustjundanaᚋgraphqlᚋmodelsᚐUserᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getUser_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetUser(rctx, args["id"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getBooks(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -595,7 +668,7 @@ func (ec *executionContext) _Query_getBooks(ctx context.Context, field graphql.C
 	}
 	res := resTmp.([]*models.Book)
 	fc.Result = res
-	return ec.marshalNBook2ᚕᚖgithubᚗcomᚋjustjundanaᚋgraphqlᚋmodelsᚐBookᚄ(ctx, field.Selections, res)
+	return ec.marshalNBook2ᚕᚖgithubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐBookᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2156,6 +2229,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getUser":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getUser(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "getBooks":
 			field := field
 
@@ -2674,7 +2770,7 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNBook2ᚕᚖgithubᚗcomᚋjustjundanaᚋgraphqlᚋmodelsᚐBookᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Book) graphql.Marshaler {
+func (ec *executionContext) marshalNBook2ᚕᚖgithubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐBookᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Book) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -2698,7 +2794,7 @@ func (ec *executionContext) marshalNBook2ᚕᚖgithubᚗcomᚋjustjundanaᚋgrap
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNBook2ᚖgithubᚗcomᚋjustjundanaᚋgraphqlᚋmodelsᚐBook(ctx, sel, v[i])
+			ret[i] = ec.marshalNBook2ᚖgithubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐBook(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -2718,7 +2814,7 @@ func (ec *executionContext) marshalNBook2ᚕᚖgithubᚗcomᚋjustjundanaᚋgrap
 	return ret
 }
 
-func (ec *executionContext) marshalNBook2ᚖgithubᚗcomᚋjustjundanaᚋgraphqlᚋmodelsᚐBook(ctx context.Context, sel ast.SelectionSet, v *models.Book) graphql.Marshaler {
+func (ec *executionContext) marshalNBook2ᚖgithubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐBook(ctx context.Context, sel ast.SelectionSet, v *models.Book) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -2773,7 +2869,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋjustjundanaᚋgraphqlᚋmodelsᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v models.User) graphql.Marshaler {
+	return ec._User(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -2797,7 +2897,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋjustjundanaᚋgrap
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋjustjundanaᚋgraphqlᚋmodelsᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -2817,7 +2917,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋjustjundanaᚋgrap
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋjustjundanaᚋgraphqlᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *models.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *models.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3103,6 +3203,22 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	res := graphql.MarshalBoolean(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
 	return res
 }
 

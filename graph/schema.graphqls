@@ -34,5 +34,7 @@ input NewBook{
 
 type Query{
     getUsers: [User!]!
+    getUser(id: Int): User!
+
     getBooks: [Book!]!
 }

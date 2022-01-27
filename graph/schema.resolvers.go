@@ -26,6 +26,15 @@ func (r *queryResolver) GetUsers(ctx context.Context) ([]*_models.User, error) {
 	return userResponseData, nil
 }
 
+func (r *queryResolver) GetUser(ctx context.Context, id *int) (*_models.User, error) {
+	responseData, err := r.userRepository.GetUser(*id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	return &responseData, nil
+}
+
 func (r *queryResolver) GetBooks(ctx context.Context) ([]*_models.Book, error) {
 	responseData, err := r.bookRepository.GetBooks()
 	if err != nil {
@@ -41,7 +50,7 @@ func (r *queryResolver) GetBooks(ctx context.Context) ([]*_models.Book, error) {
 	return bookData, nil
 }
 
-// Query returns generated.QueryResolver implementation.
+// Query returns _generated.QueryResolver implementation.
 func (r *Resolver) Query() _generated.QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }

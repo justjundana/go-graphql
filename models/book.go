@@ -5,6 +5,6 @@ type Book struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Author      string `json:"author"`
-	Publisher   string `json:"publiser"`
+	Publisher   string `json:"publisher"`
 	Status      bool   `json:"status"`
 }

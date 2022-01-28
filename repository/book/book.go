@@ -70,3 +70,21 @@ func (br *BookRepository) CreateBook(book _models.Book) (_models.Book, error) {
 
 	return book, nil
 }
+
+func (br *BookRepository) UpdateBook(book _models.Book) (_models.Book, error) {
+	query := `UPDATE books SET title = ?, description = ?, author = ?, publisher = ?, status = ? WHERE id = ?`
+
+	statement, err := br.db.Prepare(query)
+	if err != nil {
+		return book, err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(book.Title, book.Description, book.Author, book.Publisher, book.Status, book.ID)
+	if err != nil {
+		return book, err
+	}
+
+	return book, nil
+}

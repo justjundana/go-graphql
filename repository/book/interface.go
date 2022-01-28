@@ -9,4 +9,5 @@ type BookInterface interface {
 	GetBook(id int) (_models.Book, error)
 	CreateBook(book _models.Book) (_models.Book, error)
 	UpdateBook(book _models.Book) (_models.Book, error)
+	DeleteBook(book _models.Book) (_models.Book, error)
 }

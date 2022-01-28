@@ -88,3 +88,21 @@ func (br *BookRepository) UpdateBook(book _models.Book) (_models.Book, error) {
 
 	return book, nil
 }
+
+func (br *BookRepository) DeleteBook(book _models.Book) (_models.Book, error) {
+	query := `DELETE FROM books WHERE id = ?`
+
+	statement, err := br.db.Prepare(query)
+	if err != nil {
+		return book, err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(book.ID)
+	if err != nil {
+		return book, err
+	}
+
+	return book, nil
+}

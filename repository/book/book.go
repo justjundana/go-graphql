@@ -39,3 +39,16 @@ func (ur *BookRepository) GetBooks() ([]_models.Book, error) {
 
 	return books, nil
 }
+
+func (br *BookRepository) GetBook(id int) (_models.Book, error) {
+	var book _models.Book
+
+	row := br.db.QueryRow(`SELECT id, title, description, author, publisher, status FROM books WHERE id = ?`, id)
+
+	err := row.Scan(&book.ID, &book.Title, &book.Description, &book.Author, &book.Publisher, &book.Status)
+	if err != nil {
+		return book, err
+	}
+
+	return book, nil
+}

@@ -17,9 +17,9 @@ func New(db *sql.DB) *BookRepository {
 	}
 }
 
-func (ur *BookRepository) GetBooks() ([]_models.Book, error) {
+func (br *BookRepository) GetBooks() ([]_models.Book, error) {
 	var books []_models.Book
-	rows, err := ur.db.Query(`SELECT id, title, description, author, publisher FROM books ORDER BY id ASC`)
+	rows, err := br.db.Query(`SELECT id, title, description, author, publisher FROM books ORDER BY id ASC`)
 	if err != nil {
 		log.Fatalf("Error")
 	}
@@ -46,6 +46,24 @@ func (br *BookRepository) GetBook(id int) (_models.Book, error) {
 	row := br.db.QueryRow(`SELECT id, title, description, author, publisher, status FROM books WHERE id = ?`, id)
 
 	err := row.Scan(&book.ID, &book.Title, &book.Description, &book.Author, &book.Publisher, &book.Status)
+	if err != nil {
+		return book, err
+	}
+
+	return book, nil
+}
+
+func (br *BookRepository) CreateBook(book _models.Book) (_models.Book, error) {
+	query := `INSERT INTO books (title, description, author, publisher, status) VALUES (?, ?, ?, ?, ?)`
+
+	statement, err := br.db.Prepare(query)
+	if err != nil {
+		return book, err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(book.Title, book.Description, book.Author, book.Publisher, book.Status)
 	if err != nil {
 		return book, err
 	}

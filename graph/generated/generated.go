@@ -60,6 +60,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		GetBook  func(childComplexity int, id *int) int
 		GetBooks func(childComplexity int) int
 		GetUser  func(childComplexity int, id *int) int
 		GetUsers func(childComplexity int) int
@@ -82,6 +83,7 @@ type QueryResolver interface {
 	GetUsers(ctx context.Context) ([]*models.User, error)
 	GetUser(ctx context.Context, id *int) (*models.User, error)
 	GetBooks(ctx context.Context) ([]*models.Book, error)
+	GetBook(ctx context.Context, id *int) (*models.Book, error)
 }
 
 type executableSchema struct {
@@ -176,6 +178,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(*int), args["input"].(*model.NewUser)), true
+
+	case "Query.getBook":
+		if e.complexity.Query.GetBook == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getBook_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetBook(childComplexity, args["id"].(*int)), true
 
 	case "Query.getBooks":
 		if e.complexity.Query.GetBooks == nil {
@@ -334,6 +348,7 @@ type Query{
     getUser(id: Int): User!
 
     getBooks: [Book!]!
+    getBook(id: Int): Book!
 }
 
 type Mutation{
@@ -414,6 +429,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getBook_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -916,6 +946,48 @@ func (ec *executionContext) _Query_getBooks(ctx context.Context, field graphql.C
 	res := resTmp.([]*models.Book)
 	fc.Result = res
 	return ec.marshalNBook2ᚕᚖgithubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐBookᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getBook(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getBook_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetBook(rctx, args["id"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.Book)
+	fc.Result = res
+	return ec.marshalNBook2ᚖgithubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐBook(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2582,6 +2654,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getBook":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getBook(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -3076,6 +3171,10 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) marshalNBook2githubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐBook(ctx context.Context, sel ast.SelectionSet, v models.Book) graphql.Marshaler {
+	return ec._Book(ctx, sel, &v)
+}
 
 func (ec *executionContext) marshalNBook2ᚕᚖgithubᚗcomᚋjustjundanaᚋgoᚑgraphqlᚋmodelsᚐBookᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Book) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))

@@ -37,6 +37,7 @@ type Query{
     getUser(id: Int): User!
 
     getBooks: [Book!]!
+    getBook(id: Int): Book!
 }
 
 type Mutation{

@@ -88,6 +88,15 @@ func (r *queryResolver) GetBooks(ctx context.Context) ([]*_models.Book, error) {
 	return bookData, nil
 }
 
+func (r *queryResolver) GetBook(ctx context.Context, id *int) (*_models.Book, error) {
+	responseData, err := r.bookRepository.GetBook(*id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	return &responseData, nil
+}
+
 // Mutation returns _generated.MutationResolver implementation.
 func (r *Resolver) Mutation() _generated.MutationResolver { return &mutationResolver{r} }
 

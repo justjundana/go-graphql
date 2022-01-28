@@ -77,6 +77,16 @@ func (r *mutationResolver) UpdateBook(ctx context.Context, id *int, input *_mode
 	return &updateBook, err
 }
 
+func (r *mutationResolver) DeleteBook(ctx context.Context, id *int) (*_models.Book, error) {
+	book, err := r.bookRepository.GetBook(*id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	deleteBook, err := r.bookRepository.DeleteBook(book)
+	return &deleteBook, err
+}
+
 func (r *queryResolver) GetUsers(ctx context.Context) ([]*_models.User, error) {
 	responseData, err := r.userRepository.GetUsers()
 	if err != nil {

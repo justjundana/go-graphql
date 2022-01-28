@@ -61,6 +61,22 @@ func (r *mutationResolver) CreateBook(ctx context.Context, input *_model.NewBook
 	return &createBook, err
 }
 
+func (r *mutationResolver) UpdateBook(ctx context.Context, id *int, input *_model.NewBook) (*_models.Book, error) {
+	book, err := r.bookRepository.GetBook(*id)
+	if err != nil {
+		return nil, errors.New("not found")
+	}
+
+	book.Title = input.Title
+	book.Description = input.Description
+	book.Author = input.Author
+	book.Publisher = input.Publisher
+	book.Status = input.Status
+
+	updateBook, err := r.bookRepository.UpdateBook(book)
+	return &updateBook, err
+}
+
 func (r *queryResolver) GetUsers(ctx context.Context) ([]*_models.User, error) {
 	responseData, err := r.userRepository.GetUsers()
 	if err != nil {

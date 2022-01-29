@@ -2,6 +2,12 @@
 #
 # https://gqlgen.com/getting-started/
 
+type LoginResponse{
+    code: Int!
+    message: String!
+    token: String!
+}
+
 type User{
     id: Int!
     name: String!
@@ -33,6 +39,7 @@ input NewBook{
 }
 
 type Query{
+    login(email: String!, password: String!): LoginResponse
     getUsers: [User!]!
     getUser(id: Int): User!
 

@@ -9,6 +9,7 @@ import (
 
 	_generated "github.com/justjundana/go-graphql/graph/generated"
 	_model "github.com/justjundana/go-graphql/graph/model"
+	_middleware "github.com/justjundana/go-graphql/middleware"
 	_models "github.com/justjundana/go-graphql/models"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -85,6 +86,20 @@ func (r *mutationResolver) DeleteBook(ctx context.Context, id *int) (*_models.Bo
 
 	deleteBook, err := r.bookRepository.DeleteBook(book)
 	return &deleteBook, err
+}
+
+func (r *queryResolver) Login(ctx context.Context, email string, password string) (*_model.LoginResponse, error) {
+	user, err := r.userRepository.Login(email, password)
+	if err != nil {
+		return &_model.LoginResponse{}, err
+	}
+
+	token, _ := _middleware.AuthService().GenerateToken(user.ID)
+	return &_model.LoginResponse{
+		Code:    200,
+		Message: "Login Success",
+		Token:   token,
+	}, nil
 }
 
 func (r *queryResolver) GetUsers(ctx context.Context) ([]*_models.User, error) {

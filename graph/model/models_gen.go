@@ -2,6 +2,12 @@
 
 package model
 
+type LoginResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Token   string `json:"token"`
+}
+
 type NewBook struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`

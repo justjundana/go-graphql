@@ -12,10 +12,13 @@ import (
 	_userRepository "github.com/justjundana/go-graphql/repository/user"
 
 	handler "github.com/99designs/gqlgen/graphql/handler"
+	chi "github.com/go-chi/chi"
 )
 
 func main() {
 	db := _config.FetchConnection()
+
+	router := chi.NewRouter()
 
 	userRepo := _userRepository.New(db)
 	bookRepo := _bookRepository.New(db)
@@ -23,9 +26,9 @@ func main() {
 	client := _graph.NewResolver(userRepo, bookRepo)
 	srv := handler.NewDefaultServer(_generated.NewExecutableSchema(_generated.Config{Resolvers: client}))
 
-	http.Handle("/", _playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	router.Handle("/", _playground.Handler("GraphQL playground", "/query"))
+	router.Handle("/query", srv)
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", "8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Printf("connect to http://localhost:%s/ for GraphQL playground", router)
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
